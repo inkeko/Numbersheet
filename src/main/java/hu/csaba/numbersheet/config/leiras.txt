@@ -1,0 +1,1 @@
+AppConfig  -az alkalmzásnak az értékbeállitások elvégzése amita ConfigLoader olvas be a config.properties/ből

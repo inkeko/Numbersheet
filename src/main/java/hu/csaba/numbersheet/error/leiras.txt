@@ -1,0 +1,106 @@
+🟥 Hibakezelési architektúra – mit miért így csináltunk
+🎯 1) Miért kellett saját hibakezelési rendszer?
+Egy komolyabb alkalmazásban a hibák:
+• 	nem keveredhetnek a logikával,
+• 	nem szabad, hogy mindenhol try/catch legyen,
+• 	nem lehet összevissza dobálni különböző kivételeket,
+• 	a felhasználónak érthető üzenetet kell adni,
+• 	a logba pedig részletes technikai információt.
+Ezért kellett egy központi, egységes, moduláris hibakezelési rendszer.
+
+🟥 2) Miért hoztunk létre egy AppException ősosztályt?
+Az AppException a saját kivételrendszerünk alapja.
+Miért jó ez?
+• 	minden modul ugyanarra az alapra épít
+• 	az ErrorHandler egyetlen típust kezel
+• 	egységes mezők: message,userMessage ,errorCode ,cause
+• 	a logolás és a felhasználói üzenetek szétválnak
+• 	a Start modul tiszta marad
+Ez a vállalati Java‑projektekben bevett megoldás.
+
+🟥 3) Miért RuntimeException-ből öröklődik?
+Mert a futásidejű kivételek:
+• 	nem kötelezőek try/catch‑re
+• 	szépen „felúsznak” a Start modulig
+• 	ott egyetlen helyen kezeljük őket
+• 	nem kell minden sorban hibakezelést írni
+Ez tisztább, modulárisabb, professzionálisabb kódot eredményez.
+
+🟥 4) Miért hoztunk létre külön kivételosztályokat?
+Ahelyett, hogy minden hiba „AppException” lenne, külön osztályokat hoztunk létre:
+• 	ConfigException
+• 	PdfException
+• 	NumberGenerationException
+Miért jó ez?
+• 	a hibák kategorizálhatók
+• 	az ErrorHandler könnyen felismeri a típust
+• 	különböző hibák különböző súlyosságúak
+• 	a logolás és a leállítás logikája tiszta
+• 	a modulok csak a saját hibájukat dobják
+Ez a clean architecture egyik alapelve:
+minden modul a saját hibáit kezeli és jelenti.
+
+🟥 5) Miért kellett userMessage és errorCode?
+
+message
+→ fejlesztői, technikai üzenet (logba megy)
+
+userMessage
+→ emberi, érthető üzenet (képernyőre megy)
+
+errorCode
+→ kategorizálja a hibát (pl. CFG‑001)
+
+Ez a hármas együtt:
+• 	fejlesztőnek részletes információ
+• 	felhasználónak érthető üzenet
+• 	rendszergazdának hibakód
+• 	ErrorHandlernek döntési alap
+Ez már vállalati szintű hibakezelés.
+
+🟥 6) Miért kellett ErrorHandler?
+Az ErrorHandler a rendszer „védőfala”.
+Feladatai:
+• 	felismeri a hibatípust
+• 	logol SLF4J‑vel
+• 	kiírja a userMessage‑t
+• 	eldönti, hogy a program folytatható‑e
+• 	kritikus hibánál leállítja a programot
+Miért jó ez?
+• 	a Start modul tiszta marad
+• 	a hibakezelés egy helyen van
+• 	a logolás egységes
+• 	a felhasználó mindig szép üzenetet kap
+• 	a rendszer stabil és kiszámítható
+
+🟥 7) Miért különböztetjük meg a kritikus és nem kritikus hibákat?
+Kritikus hibák:
+• 	ConfigException
+• 	PdfException
+• 	AppException (általános hiba)
+→ a program nem tud tovább futni → leállítjuk
+Nem kritikus:
+• 	NumberGenerationException
+→ a program folytatható
+Ez teljesen életszerű:
+• 	ha nincs config → nem indulhat
+• 	ha nem tud PDF‑et írni → nincs értelme futni
+• 	ha hibás random tartomány → csak azt az egy műveletet kell megállítani
+
+🟥 8) Hogyan illeszkedik ez a teljes rendszerbe?
+A projekt moduljai:
+start
+config
+generator
+pdf
+model
+util
+error
+
+Az error csomag:
+• 	minden modul hibáit egységesen kezeli
+• 	a Start modul csak egyetlen try/catch-et tartalmaz
+• 	a logolás mindenhol ugyanúgy működik
+• 	a felhasználó mindig érthető üzenetet kap
+• 	a rendszer stabil és bővíthető
+Ez egy nagyon profi, tiszta architektúra.
