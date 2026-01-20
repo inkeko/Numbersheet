@@ -1,62 +1,54 @@
 package hu.csaba.numbersheet.generator;
 
 import hu.csaba.numbersheet.config.AppConfig;
-import hu.csaba.numbersheet.error.NumberGenerationException;
+import util.number.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
+/**
+ * Generates random numbers based on configuration.
+ * Konfiguráció alapján véletlenszámokat generál.
+ */
 public class NumberGenerator {
 
     private final AppConfig config;
-    private final Random random = new Random();
 
+    /**
+     * Constructor that receives the application configuration.
+     * Konstruktor, amely megkapja az alkalmazás konfigurációját.
+     */
     public NumberGenerator(AppConfig config) {
         this.config = config;
     }
 
-    public List<Integer> generate() throws NumberGenerationException {
+    /**
+     * Generates a list of random integers using NumberUtils.
+     * Véletlenszámok listáját generálja a NumberUtils segítségével.
+     *
+     * @return list of generated numbers
+     *         a generált számok listája
+     */
+    public List<Integer> generate() {
 
-        int min = config.getNumbersMin();
-        int max = config.getNumbersMax();
-        int count = config.getNumbersCount();
+        List<Integer> numbers = new ArrayList<>();
 
-        // 1) Tartomány ellenőrzése
-        if (min >= max) {
-            throw new NumberGenerationException(
-                    "A minimum érték nagyobb vagy egyenlő a maximum értéknél.",
-                    "Hibás számgenerálási tartomány.",
-                    "GEN-001"
+        for (int i = 0; i < config.getNumbersCount(); i++) {
+
+            // Generate random number using NumberUtils
+            // Véletlenszám generálása NumberUtils segítségével
+            int value = NumberUtils.randomInRange(
+                    config.getNumbersMin(),
+                    config.getNumbersMax()
             );
-        }
 
-        if (count <= 0) {
-            throw new NumberGenerationException(
-                    "A generálandó mennyiség <= 0.",
-                    "A generálandó számok mennyisége hibás.",
-                    "GEN-002"
+            // Optional safety clamp (keeps value inside range)
+            // Opcionális clamp (biztosítja, hogy a szám a tartományban maradjon)
+            value = NumberUtils.clamp(
+                    value,
+                    config.getNumbersMin(),
+                    config.getNumbersMax()
             );
-        }
-
-        // 2) Számok generálása kevert eloszlással
-        List<Integer> numbers = new ArrayList<>(count);
-
-        for (int i = 0; i < count; i++) {
-
-            double mix = random.nextDouble();
-            int value;
-
-            if (mix < 0.7) {
-                // 70% Gauss eloszlás
-                double g = random.nextGaussian();     // -∞..+∞, de 99% -3..+3 között
-                double n = (g + 3) / 6;               // 0..1 közé normalizálva
-                n = Math.max(0, Math.min(1, n));      // biztosan 0..1 között marad
-                value = (int) (min + n * (max - min));
-            } else {
-                // 30% uniform eloszlás
-                value = random.nextInt(max - min + 1) + min;
-            }
 
             numbers.add(value);
         }

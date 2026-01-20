@@ -1,6 +1,8 @@
 package hu.csaba.numbersheet.config;
 
 import hu.csaba.numbersheet.error.ConfigException;
+import hu.csaba.numbersheet.util.strings.StringUtils;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,14 +16,15 @@ public class ConfigLoader {
 
         Properties props = new Properties();
 
+        // 1) Load config.properties
         // 1) config.properties betöltése
         try (InputStream input = ConfigLoader.class.getClassLoader()
                 .getResourceAsStream(CONFIG_FILE)) {
 
             if (input == null) {
                 throw new ConfigException(
+                        "config.properties not found in resources.",
                         "A config.properties fájl nem található a resources mappában.",
-                        "A konfigurációs fájl hiányzik.",
                         "CFG-001"
                 );
             }
@@ -30,14 +33,15 @@ public class ConfigLoader {
 
         } catch (IOException e) {
             throw new ConfigException(
-                    "Nem sikerült beolvasni a config.properties fájlt: " + e.getMessage(),
-                    "A konfigurációs fájl olvasása sikertelen.",
+                    "Failed to read config.properties: " + e.getMessage(),
+                    "Nem sikerült beolvasni a config.properties fájlt.",
                     "CFG-002",
                     e
             );
         }
 
-        // 2) Kiolvassuk az értékeket
+        // 2) Read values
+        // 2) Értékek kiolvasása
         String outputDirectory = props.getProperty("output.directory");
         String pdfFileName = props.getProperty("pdf.filename");
         String numbersCountStr = props.getProperty("numbers.count");
@@ -48,55 +52,59 @@ public class ConfigLoader {
         String fontName = props.getProperty("font.name");
         String fontSizeStr = props.getProperty("font.size");
 
-        // 3) Validálás
-        if (outputDirectory == null || outputDirectory.isBlank()) {
+        // 3) Validate text fields using StringUtils
+        // 3) Szöveges mezők validálása StringUtils segítségével
+        if (StringUtils.isBlank(outputDirectory)) {
             throw new ConfigException(
-                    "output.directory nincs megadva.",
+                    "output.directory is missing.",
                     "A kimeneti könyvtár nincs beállítva.",
                     "CFG-003"
             );
         }
 
-        if (pdfFileName == null || pdfFileName.isBlank()) {
+        if (StringUtils.isBlank(pdfFileName)) {
             throw new ConfigException(
-                    "pdf.filename nincs megadva.",
+                    "pdf.filename is missing.",
                     "A PDF fájl neve nincs beállítva.",
                     "CFG-004"
             );
         }
 
-        if (fontName == null || fontName.isBlank()) {
+        if (StringUtils.isBlank(fontName)) {
             throw new ConfigException(
-                    "font.name nincs megadva.",
+                    "font.name is missing.",
                     "A betűtípus nincs beállítva.",
                     "CFG-008"
             );
         }
 
-        int numbersCount;
-        int numbersMin;
-        int numbersMax;
-        int maxLines;
-        int maxChars;
-        int fontSize;
+        // 4) Validate numeric fields using StringUtils.isNumeric
+        // 4) Szám mezők validálása StringUtils.isNumeric segítségével
+        if (!StringUtils.isNumeric(numbersCountStr)
+                || !StringUtils.isNumeric(numbersMinStr)
+                || !StringUtils.isNumeric(numbersMaxStr)
+                || !StringUtils.isNumeric(maxLinesStr)
+                || !StringUtils.isNumeric(maxCharsStr)
+                || !StringUtils.isNumeric(fontSizeStr)) {
 
-        try {
-            numbersCount = Integer.parseInt(numbersCountStr);
-            numbersMin = Integer.parseInt(numbersMinStr);
-            numbersMax = Integer.parseInt(numbersMaxStr);
-            maxLines = Integer.parseInt(maxLinesStr);
-            maxChars = Integer.parseInt(maxCharsStr);
-            fontSize = Integer.parseInt(fontSizeStr);
-
-        } catch (NumberFormatException e) {
             throw new ConfigException(
+                    "Invalid numeric values in config file.",
                     "A konfigurációs fájl hibás számértékeket tartalmaz.",
-                    "A számgenerálási paraméterek nem érvényes egész számok.",
-                    "CFG-005",
-                    e
+                    "CFG-005"
             );
         }
 
+        // 5) Convert to integers
+        // 5) Átalakítás egész számokká
+        int numbersCount = Integer.parseInt(numbersCountStr.trim());
+        int numbersMin = Integer.parseInt(numbersMinStr.trim());
+        int numbersMax = Integer.parseInt(numbersMaxStr.trim());
+        int maxLines = Integer.parseInt(maxLinesStr.trim());
+        int maxChars = Integer.parseInt(maxCharsStr.trim());
+        int fontSize = Integer.parseInt(fontSizeStr.trim());
+
+        // 6) Logical validations
+        // 6) Logikai validációk
         if (numbersMin >= numbersMax) {
             throw new ConfigException(
                     "numbers.min >= numbers.max",
@@ -137,7 +145,8 @@ public class ConfigLoader {
             );
         }
 
-        // 4) AppConfig létrehozása
+        // 7) Create AppConfig
+        // 7) AppConfig létrehozása
         return new AppConfig(
                 outputDirectory,
                 pdfFileName,
