@@ -10,13 +10,13 @@ public class ConfigLoader {
 
     private static final String CONFIG_FILE = "config.properties";
 
-    public static AppConfig load()throws ConfigException
-    {
+    public static AppConfig load() throws ConfigException {
 
         Properties props = new Properties();
 
-        // 1) Betöltjük a config.properties fájlt
-        try (InputStream input = ConfigLoader.class.getClassLoader().getResourceAsStream(CONFIG_FILE)) {
+        // 1) config.properties betöltése
+        try (InputStream input = ConfigLoader.class.getClassLoader()
+                .getResourceAsStream(CONFIG_FILE)) {
 
             if (input == null) {
                 throw new ConfigException(
@@ -30,7 +30,7 @@ public class ConfigLoader {
 
         } catch (IOException e) {
             throw new ConfigException(
-                    "Nem sikerült beolvasni a config.properties fájlt.",
+                    "Nem sikerült beolvasni a config.properties fájlt: " + e.getMessage(),
                     "A konfigurációs fájl olvasása sikertelen.",
                     "CFG-002",
                     e
@@ -43,12 +43,12 @@ public class ConfigLoader {
         String numbersCountStr = props.getProperty("numbers.count");
         String numbersMinStr = props.getProperty("numbers.min");
         String numbersMaxStr = props.getProperty("numbers.max");
-        String numbersMaxLines = props.getProperty("page.maxLines");
-        String numbersMaxChars = props.getProperty("page.maxChars");
+        String maxLinesStr = props.getProperty("page.maxLines");
+        String maxCharsStr = props.getProperty("page.maxChars");
         String fontName = props.getProperty("font.name");
-        String fontSize = props.getProperty("font.size");
+        String fontSizeStr = props.getProperty("font.size");
 
-        // 3) Validáljuk az értékeket
+        // 3) Validálás
         if (outputDirectory == null || outputDirectory.isBlank()) {
             throw new ConfigException(
                     "output.directory nincs megadva.",
@@ -65,24 +65,33 @@ public class ConfigLoader {
             );
         }
 
+        if (fontName == null || fontName.isBlank()) {
+            throw new ConfigException(
+                    "font.name nincs megadva.",
+                    "A betűtípus nincs beállítva.",
+                    "CFG-008"
+            );
+        }
+
         int numbersCount;
         int numbersMin;
         int numbersMax;
-        int numbersmaxLines;
-        int numbersmaxChars;
-        int numbersFontSize;
+        int maxLines;
+        int maxChars;
+        int fontSize;
 
         try {
             numbersCount = Integer.parseInt(numbersCountStr);
             numbersMin = Integer.parseInt(numbersMinStr);
             numbersMax = Integer.parseInt(numbersMaxStr);
-            numbersmaxLines= Integer.parseInt(numbersMaxLines);
-            numbersmaxChars = Integer.parseInt(numbersMaxChars);
-            numbersFontSize = Integer.parseInt(fontSize);
+            maxLines = Integer.parseInt(maxLinesStr);
+            maxChars = Integer.parseInt(maxCharsStr);
+            fontSize = Integer.parseInt(fontSizeStr);
+
         } catch (NumberFormatException e) {
             throw new ConfigException(
-                    "A számgenerálási paraméterek nem érvényes egész számok.",
                     "A konfigurációs fájl hibás számértékeket tartalmaz.",
+                    "A számgenerálási paraméterek nem érvényes egész számok.",
                     "CFG-005",
                     e
             );
@@ -104,46 +113,41 @@ public class ConfigLoader {
             );
         }
 
-        if (fontName == null || fontName.isBlank()) {
+        if (fontSize <= 0) {
             throw new ConfigException(
-                    "font.name nincs megadva.",
-                    "A betűtípus nincs beállítva.",
-                    "CFG-008"
+                    "font.size <= 0",
+                    "A betűméret hibás.",
+                    "CFG-009"
             );
         }
-         if(numbersFontSize < 0 ){
-             throw new ConfigException(
-                     "font.size nincs megadva.",
-                     "A betűtípus nincs beállítva.",
-                     "CFG-009"
-             );
-         }
-        if(numbersmaxLines < 0 ){
+
+        if (maxLines <= 0) {
             throw new ConfigException(
-                    "maxLines nem jo az értéke.",
-                    "A maxLine értéke  nincs beállítva.",
+                    "page.maxLines <= 0",
+                    "A maxLines értéke hibás.",
                     "CFG-010"
             );
         }
-        if(numbersmaxChars < 0 ){
+
+        if (maxChars <= 0) {
             throw new ConfigException(
-                    "maxChar értéke nincs megadva.",
-                    "A maxCharértéke  nincs beállítva.",
+                    "page.maxChars <= 0",
+                    "A maxChars értéke hibás.",
                     "CFG-011"
             );
         }
 
-        // 4) Létrehozzuk az AppConfig objektumot
+        // 4) AppConfig létrehozása
         return new AppConfig(
                 outputDirectory,
                 pdfFileName,
                 numbersCount,
                 numbersMin,
                 numbersMax,
-                numbersmaxLines,
-                numbersmaxChars,
+                maxLines,
+                maxChars,
                 fontName,
-                numbersFontSize
+                fontSize
         );
     }
 }

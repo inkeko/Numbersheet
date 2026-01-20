@@ -29,6 +29,7 @@ public class PdfCreator {
         String fileName = config.getPdfFileName();
         int fontSize = config.getFontSize();
 
+        // 1) Kimeneti mappa ellenőrzése
         File directory = new File(outputDir);
         if (!directory.exists() && !directory.mkdirs()) {
             throw new PdfException(
@@ -40,6 +41,7 @@ public class PdfCreator {
 
         File outputFile = new File(directory, fileName);
 
+        // 2) PDF létrehozása
         try (PDDocument document = new PDDocument()) {
 
             for (List<String> pageLines : pages) {
@@ -47,9 +49,14 @@ public class PdfCreator {
                 PDPage page = new PDPage();
                 document.addPage(page);
 
-                try (PDPageContentStream content = new PDPageContentStream(document, page)) {
+                try (PDPageContentStream content =
+                             new PDPageContentStream(document, page)) {
 
-                    content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), fontSize);
+                    content.setFont(
+                            new PDType1Font(Standard14Fonts.FontName.HELVETICA),
+                            fontSize
+                    );
+
                     content.beginText();
 
                     float startX = 50;
@@ -73,7 +80,8 @@ public class PdfCreator {
             throw new PdfException(
                     "Hiba történt a PDF létrehozása során: " + e.getMessage(),
                     "PDF generálási hiba",
-                    "PDF-002"
+                    "PDF-002",
+                    e
             );
         }
     }

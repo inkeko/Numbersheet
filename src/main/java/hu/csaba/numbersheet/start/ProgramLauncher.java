@@ -17,7 +17,7 @@ public class ProgramLauncher {
         try {
             // 1) Konfiguráció betöltése
             AppConfig config = ConfigLoader.load();
-            System.out.println("Konfiguráció betöltve.");
+
 
             // 2) Itt jön majd a számgenerálás modul
             NumberGenerator generator = new NumberGenerator(config);

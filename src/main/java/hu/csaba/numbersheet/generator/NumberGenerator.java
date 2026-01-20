@@ -16,8 +16,7 @@ public class NumberGenerator {
         this.config = config;
     }
 
-    public List<Integer> generate()  throws NumberGenerationException
-    {
+    public List<Integer> generate() throws NumberGenerationException {
 
         int min = config.getNumbersMin();
         int max = config.getNumbersMax();

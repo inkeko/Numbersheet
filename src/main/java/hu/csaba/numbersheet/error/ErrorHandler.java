@@ -3,6 +3,8 @@ package hu.csaba.numbersheet.error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 public class ErrorHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
@@ -23,6 +25,13 @@ public class ErrorHandler {
             shutdown();
             return;
         }
+        if (e instanceof FormatterException) {
+            logger.error("PDF formázási hiba", e);
+            printUserMessage(e);
+            shutdown();
+            return;
+        }
+
 
         if (e instanceof NumberGenerationException) {
             logger.warn("Számgenerálási hiba: {} | Kód: {}", e.getMessage(), e.getErrorCode(), e);
@@ -51,4 +60,5 @@ public class ErrorHandler {
         System.out.println("A program leáll.");
         System.exit(1);
     }
+
 }
