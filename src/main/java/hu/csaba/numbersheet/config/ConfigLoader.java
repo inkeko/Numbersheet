@@ -10,7 +10,8 @@ public class ConfigLoader {
 
     private static final String CONFIG_FILE = "config.properties";
 
-    public static AppConfig load() {
+    public static AppConfig load()throws ConfigException
+    {
 
         Properties props = new Properties();
 

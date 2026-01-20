@@ -23,7 +23,7 @@ public class PdfCreator {
     /**
      * A formázott oldalak alapján létrehozza a PDF dokumentumot.
      */
-    public void createPdf(List<List<String>> pages) {
+    public void createPdf(List<List<String>> pages) throws PdfException {
 
         String outputDir = config.getOutputDirectory();
         String fileName = config.getPdfFileName();
@@ -52,7 +52,6 @@ public class PdfCreator {
                     content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), fontSize);
                     content.beginText();
 
-                    // Kiindulási pozíció (PDF koordinátarendszer: bal alsó sarok = 0,0)
                     float startX = 50;
                     float startY = page.getMediaBox().getHeight() - 50;
                     float lineSpacing = fontSize + 4;
