@@ -1,7 +1,8 @@
 package hu.csaba.numbersheet.config;
 
 import hu.csaba.numbersheet.error.ConfigException;
-import hu.csaba.numbersheet.util.strings.StringUtils;
+import util.strings.StringUtils;
+import util.validation.ValidationUtils;
 
 
 import java.io.IOException;
@@ -54,7 +55,9 @@ public class ConfigLoader {
 
         // 3) Validate text fields using StringUtils
         // 3) Szöveges mezők validálása StringUtils segítségével
-        if (StringUtils.isBlank(outputDirectory)) {
+        // 3) Validálás ValidationUtils segítségével
+
+        if (!ValidationUtils.isNotBlank(outputDirectory)) {
             throw new ConfigException(
                     "output.directory is missing.",
                     "A kimeneti könyvtár nincs beállítva.",
@@ -62,7 +65,7 @@ public class ConfigLoader {
             );
         }
 
-        if (StringUtils.isBlank(pdfFileName)) {
+        if (!ValidationUtils.isNotBlank(pdfFileName)) {
             throw new ConfigException(
                     "pdf.filename is missing.",
                     "A PDF fájl neve nincs beállítva.",
@@ -70,7 +73,7 @@ public class ConfigLoader {
             );
         }
 
-        if (StringUtils.isBlank(fontName)) {
+        if (!ValidationUtils.isNotBlank(fontName)) {
             throw new ConfigException(
                     "font.name is missing.",
                     "A betűtípus nincs beállítva.",
@@ -78,14 +81,18 @@ public class ConfigLoader {
             );
         }
 
+
+
         // 4) Validate numeric fields using StringUtils.isNumeric
         // 4) Szám mezők validálása StringUtils.isNumeric segítségével
-        if (!StringUtils.isNumeric(numbersCountStr)
-                || !StringUtils.isNumeric(numbersMinStr)
-                || !StringUtils.isNumeric(numbersMaxStr)
-                || !StringUtils.isNumeric(maxLinesStr)
-                || !StringUtils.isNumeric(maxCharsStr)
-                || !StringUtils.isNumeric(fontSizeStr)) {
+        // 4) Szám mezők validálása
+
+        if (!ValidationUtils.isInteger(numbersCountStr)
+                || !ValidationUtils.isInteger(numbersMinStr)
+                || !ValidationUtils.isInteger(numbersMaxStr)
+                || !ValidationUtils.isInteger(maxLinesStr)
+                || !ValidationUtils.isInteger(maxCharsStr)
+                || !ValidationUtils.isInteger(fontSizeStr)) {
 
             throw new ConfigException(
                     "Invalid numeric values in config file.",
@@ -93,6 +100,9 @@ public class ConfigLoader {
                     "CFG-005"
             );
         }
+
+
+
 
         // 5) Convert to integers
         // 5) Átalakítás egész számokká
@@ -105,15 +115,9 @@ public class ConfigLoader {
 
         // 6) Logical validations
         // 6) Logikai validációk
-        if (numbersMin >= numbersMax) {
-            throw new ConfigException(
-                    "numbers.min >= numbers.max",
-                    "A számgenerálási tartomány hibás.",
-                    "CFG-006"
-            );
-        }
+        // 6) Logikai validációk ValidationUtils segítségével
 
-        if (numbersCount <= 0) {
+        if (!ValidationUtils.isPositive(numbersCount)) {
             throw new ConfigException(
                     "numbers.count <= 0",
                     "A generálandó számok mennyisége hibás.",
@@ -121,7 +125,7 @@ public class ConfigLoader {
             );
         }
 
-        if (fontSize <= 0) {
+        if (!ValidationUtils.isPositive(fontSize)) {
             throw new ConfigException(
                     "font.size <= 0",
                     "A betűméret hibás.",
@@ -129,7 +133,7 @@ public class ConfigLoader {
             );
         }
 
-        if (maxLines <= 0) {
+        if (!ValidationUtils.isPositive(maxLines)) {
             throw new ConfigException(
                     "page.maxLines <= 0",
                     "A maxLines értéke hibás.",
@@ -137,7 +141,7 @@ public class ConfigLoader {
             );
         }
 
-        if (maxChars <= 0) {
+        if (!ValidationUtils.isPositive(maxChars)) {
             throw new ConfigException(
                     "page.maxChars <= 0",
                     "A maxChars értéke hibás.",
@@ -145,6 +149,13 @@ public class ConfigLoader {
             );
         }
 
+        if (!ValidationUtils.isInRange(numbersMin, Integer.MIN_VALUE, numbersMax - 1)) {
+            throw new ConfigException(
+                    "numbers.min >= numbers.max",
+                    "A számgenerálási tartomány hibás.",
+                    "CFG-006"
+            );
+        }
         // 7) Create AppConfig
         // 7) AppConfig létrehozása
         return new AppConfig(

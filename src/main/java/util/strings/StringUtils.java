@@ -1,4 +1,4 @@
-package hu.csaba.numbersheet.util.strings;
+package util.strings;
 
 import java.util.List;
 import java.util.Objects;

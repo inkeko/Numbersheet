@@ -125,4 +125,29 @@ public final class NumberUtils {
                 .get()
                 .getKey();
     }
+
+    /**
+     * Clamps every value in a list to the given range.
+     * A lista minden elemét a megadott tartományba szorítja.
+     *
+     * @param values the list of integers
+     *               az egész számok listája
+     * @param min minimum allowed value
+     *            a minimum érték
+     * @param max maximum allowed value
+     *            a maximum érték
+     * @return new list with clamped values
+     *         új lista a korlátozott értékekkel
+     */
+    public static List<Integer> clampList(List<Integer> values, int min, int max) {
+        if (values == null) {
+            throw new IllegalArgumentException(
+                    "List cannot be null. / A lista nem lehet null."
+            );
+        }
+
+        return values.stream()
+                .map(v -> clamp(v, min, max))
+                .toList();
+    }
 }
