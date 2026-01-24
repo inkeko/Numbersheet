@@ -1,7 +1,7 @@
 package hu.csaba.numbersheet.config;
 
 import hu.csaba.numbersheet.error.ConfigException;
-import util.strings.StringUtils;
+
 import util.validation.ValidationUtils;
 
 
