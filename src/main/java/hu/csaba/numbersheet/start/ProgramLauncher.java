@@ -87,6 +87,13 @@ public class ProgramLauncher {
             System.out.println("Sum: " + sum(numbers));
             System.out.println("Average: " + average(numbers));
 
+
+            System.out.println();
+            System.out.println("output nyomáatása");
+            PdfCreator pdf = new PdfCreator(config);
+            pdf.queriesCreatePdf(numbers, "output.pdf");
+
+
         } catch (AppException e) {
             // Minden saját kivétel ide fut be
             ErrorHandler.handle(e);
